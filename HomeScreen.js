@@ -7,6 +7,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+
 import { colors } from './colors';
 import { storageService } from './storage';
 import Header from './Header';
@@ -197,4 +198,84 @@ const HomeScreen = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behav
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+    >
+      <Header 
+        noteCount={filteredNotes.length}
+        onClearAll={clearAllNotes}
+      />
+      
+      {/* Search Section */}
+      <View style={styles.searchSection}>
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onToggleFilters={() => setShowFilters(true)}
+        />
+      </View>
+
+      <NoteInput
+        title={title}
+        content={content}
+        attachments={attachments}
+        category={category}
+        onTitleChange={setTitle}
+        onContentChange={setContent}
+        onAttachmentsChange={setAttachments}
+        onCategoryChange={setCategory}
+        onSubmit={editingId ? updateNote : saveNote}
+        onCancel={resetForm}
+        isEditing={!!editingId}
+      />
+
+      {/* Active Filters */}
+      <ActiveFilters
+        searchQuery={searchQuery}
+        selectedCategory={selectedCategory}
+        onClearSearch={clearSearch}
+        onClearCategory={clearCategory}
+        onClearAll={clearAllFilters}
+      />
+
+      {/* Notes List */}
+      <FlatList
+        data={filteredNotes}
+        renderItem={renderNote}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={<EmptyState />}
+        showsVerticalScrollIndicator={false}
+      />
+
+      {/* Filters Modal */}
+      <FiltersModal
+        visible={showFilters}
+        selectedCategory={selectedCategory}
+        onCategorySelect={handleCategoryFilter}
+        onClearFilters={clearAllFilters}
+        onClose={() => setShowFilters(false)}
+      />
+    </KeyboardAvoidingView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  searchSection: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  listContent: {
+    padding: 20,
+    flexGrow: 1,
+  },
+});
+
+export default HomeScreen;
